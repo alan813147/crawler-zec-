@@ -1,6 +1,7 @@
 from bs4 import BeautifulSoup
 import requests
 import time
+import pandas as pd
 
 import random
 import time
@@ -9,7 +10,8 @@ import time
 delay_choices = [1, 5, 7, 6, 3, 4.5]  #延遲的秒數
 delay = random.choice(delay_choices)  #隨機選取秒數
 
-
+zec_data={}
+zec_data_list = []  
 def getsoup():
     url = 'https://www.zeczec.com/'
     headers = {'User-Agent':'Mozilla/5.0 (Windows NT 6.1; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/62.0.3202.62 Safari/537.36'}
@@ -26,8 +28,8 @@ def getPagenum():
 def getinfo(url_href):
     
     headers = {'User-Agent':'Mozilla/5.0 (Windows NT 6.1; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/62.0.3202.62 Safari/537.36'}
-    zec_data={}
-    zec_data_list = []  
+    # zec_data={}
+    # zec_data_list = []  
     r = requests.get(url_href,headers=headers)
     sp = BeautifulSoup(r.text, 'lxml')
     data = sp.find('div', class_='w-full px-4 lg:w-3/10')
@@ -43,21 +45,27 @@ def getinfo(url_href):
     zec_data_list.append(zec_data)
     time.sleep(6)
 
-    print(zec_data_list)
+    # print(zec_data_list)
+
 
 def getall(time_sleep):
     pagenum = getPagenum()
     sp = getsoup()
     datas = sp.select('.container > .container > .flex.gutter3-l > .w-full > .text-black > .block')
-    # url_list = []
     for pagenum in range(1,pagenum):
         for i in datas:
             href = i.get('href')
             url_href = 'https://www.zeczec.com'+ str(href)
             getinfo(url_href)
-            # time.sleep(delay)  #延遲
+
+
   
-    print("結束")       
+    print("結束")   
+    filepath = f'./data/zeccsv.csv'
+    df = pd.DataFrame(data=zec_data, index=[0])
+    df.to_csv(filepath, mode='a', header=False, index=False) 
+
+  
 
 
 
